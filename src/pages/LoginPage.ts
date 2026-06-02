@@ -1,68 +1,61 @@
-import type { Page} from '@playwright/test';
-import { expect } from '@playwright/test';
-import { BasePage } from './BasePage';
-import type { User } from '../types';
+import type { Page } from '@playwright/test'
+import { expect } from '@playwright/test'
+import { BasePage } from './BasePage'
+import type { User } from '../types'
+import { Input, Button, Alert } from '../locators'
 
 export class LoginPage extends BasePage {
-  // ── Locators ──────────────────────────────────────────────────────────────
-
-  private readonly usernameInput = this.page.locator('input[name="username"]');
-  private readonly passwordInput = this.page.locator('input[name="password"]');
-  private readonly submitBtn = this.page.locator('button[type="submit"]');
-  private readonly errorAlert = this.page.locator('.oxd-alert--error, .oxd-alert');
-  private readonly invalidCredentialMsg = this.page.locator('.oxd-alert-content-text');
-  private readonly requiredMsg = this.page.locator('.oxd-input-group__message');
-  private readonly logo = this.page.locator('.orangehrm-login-logo, img[alt*="orange" i]');
+  private readonly input = new Input(this.page.locator('body'))
+  private readonly button = new Button(this.page.locator('body'))
+  private readonly alert = new Alert(this.page.locator('body'))
 
   constructor(page: Page) {
-    super(page);
+    super(page)
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
-
   async goto(): Promise<void> {
-    await this.navigate('/web/index.php/auth/login');
+    await this.navigate('/web/index.php/auth/login')
   }
 
   async login(user: User): Promise<void> {
-    await this.fill(this.usernameInput, user.email, 'username');
-    await this.fill(this.passwordInput, user.password, 'password');
-    await this.click(this.submitBtn, 'login button');
+    await this.input.fillByName('username', user.username)
+    await this.input.fillByName('password', user.password)
+    await this.button.clickByType('submit')
   }
 
   async loginAndWait(user: User): Promise<void> {
-    await this.login(user);
-    await this.page.waitForURL(/\/web\/index\.php\/dashboard\/index/, { timeout: 15_000 });
+    await this.login(user)
+    await this.page.waitForURL(/\/web\/index\.php\/dashboard\/index/, { timeout: 15_000 })
   }
 
   async getErrorMessage(): Promise<string> {
-    await this.waitForVisible(this.invalidCredentialMsg, 5_000);
-    return this.getText(this.invalidCredentialMsg);
+    await this.alert.waitForVisible(5_000)
+    return this.alert.getText()
   }
 
   async clearAndLogin(user: User): Promise<void> {
-    await this.usernameInput.clear();
-    await this.passwordInput.clear();
-    await this.login(user);
+    await this.input.getByName('username').clear()
+    await this.input.getByName('password').clear()
+    await this.login(user)
   }
 
-  // ── Assertions ────────────────────────────────────────────────────────────
-
   async assertOnLoginPage(): Promise<void> {
-    await this.assertURL(/\/web\/index\.php\/auth\/login/);
-    await this.assertVisible(this.usernameInput, 'username field should be visible');
-    await this.assertVisible(this.passwordInput, 'password field should be visible');
+    await this.assertURL(/\/web\/index\.php\/auth\/login/)
+    await this.assertVisible(this.input.getByName('username'), 'username field should be visible')
+    await this.assertVisible(this.input.getByName('password'), 'password field should be visible')
   }
 
   async assertLoginFailed(): Promise<void> {
-    await expect(this.errorAlert).toBeVisible({ timeout: 5_000 });
+    await expect(this.alert.getContainer()).toBeVisible({ timeout: 5_000 })
   }
 
   async assertLoggedIn(): Promise<void> {
-    await this.assertURL(/\/web\/index\.php\/dashboard\/index/);
+    await this.assertURL(/\/web\/index\.php\/dashboard\/index/)
   }
 
   async assertRequiredValidation(): Promise<void> {
-    await expect(this.requiredMsg.first()).toBeVisible({ timeout: 5_000 });
+    await expect(
+      this.page.locator('.oxd-input-group__message').first()
+    ).toBeVisible({ timeout: 5_000 })
   }
 }
