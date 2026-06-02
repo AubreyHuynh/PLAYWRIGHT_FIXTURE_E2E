@@ -1,0 +1,24 @@
+
+# Dependencies
+node_modules/
+
+# Environment — never commit real credentials
+.env
+.env.local
+.env.*.local
+
+# Auth state — contains session tokens
+.auth/
+
+# Playwright output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Allure
+allure-results/
+allure-report/
+
+# TypeScript build
+dist/
