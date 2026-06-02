@@ -1,95 +1,54 @@
-/**
- * Input — shadcn Input (plain text / email / password / search).
- * Targets the native <input> via its accessible label, placeholder, or
- * explicit test-id so the locator survives styling changes.
- */
-
-import { expect, type Locator } from "@playwright/test";
-import { BaseComponent } from "../baseComponent";
+import type { Locator } from '@playwright/test'
+import { expect } from '@playwright/test'
+import { BaseComponent } from '../baseComponent'
 
 export class Input extends BaseComponent {
-    //#region Locators
-    private field(label: string): Locator {
-        return this.scope().getByLabel(label);
-    }
+  getByLabel(label: string): Locator {
+    return this.root.locator(
+      `//label[normalize-space()="${label}"]/following-sibling::div//input | ` +
+      `//label[normalize-space()="${label}"]/following-sibling::input`
+    )
+  }
 
-    private fieldByPlaceholder(placeholder: string): Locator {
-        return this.scope().getByPlaceholder(placeholder);
-    }
+  getByName(name: string): Locator {
+    return this.root.locator(`input[name="${name}"]`)
+  }
 
-    private fieldByTestId(testId: string): Locator {
-        return this.scope().getByTestId(testId);
-    }
-    //#endregion
+  getByClass(cls: string): Locator {
+    return this.root.locator(`.${cls}`)
+  }
 
-    //#region Actions
-    async fill(label: string, value: string): Promise<void> {
-        const field = this.field(label);
-        await this.waitForVisible(field);
-        await field.clear();
-        await field.fill(value);
-    }
+  getByPlaceholder(text: string): Locator {
+    return this.root.locator(`input[placeholder="${text}"]`)
+  }
 
-    async fillByPlaceholder(placeholder: string, value: string): Promise<void> {
-        const field = this.fieldByPlaceholder(placeholder);
-        await this.waitForVisible(field);
-        await field.clear();
-        await field.fill(value);
-    }
+  async fillByLabel(label: string, value: string): Promise<void> {
+    const input = this.getByLabel(label)
+    await input.clear()
+    await input.fill(value)
+  }
 
-    async fillByTestId(testId: string, value: string): Promise<void> {
-        const field = this.fieldByTestId(testId);
-        await this.waitForVisible(field);
-        await field.clear();
-        await field.fill(value);
-    }
+  async fillByName(name: string, value: string): Promise<void> {
+    const input = this.getByName(name)
+    await input.clear()
+    await input.fill(value)
+  }
 
-    async clear(label: string): Promise<void> {
-        const field = this.field(label);
-        await this.waitForVisible(field);
-        await field.clear();
-    }
+  async fillByPlaceholder(placeholder: string, value: string): Promise<void> {
+    const input = this.getByPlaceholder(placeholder)
+    await input.clear()
+    await input.fill(value)
+  }
 
-    async type(label: string, value: string): Promise<void> {
-        const field = this.field(label);
-        await this.waitForVisible(field);
-        await field.pressSequentially(value);
-    }
-    //#endregion
+  async getValueByLabel(label: string): Promise<string> {
+    return this.getByLabel(label).inputValue()
+  }
 
-    //#region Assertions
-    async expectValue(label: string, expected: string): Promise<void> {
-        await expect(this.field(label)).toHaveValue(expected);
-    }
-
-    async expectPlaceholder(label: string, expected: string): Promise<void> {
-        await expect(this.field(label)).toHaveAttribute("placeholder", expected);
-    }
-
-    async expectEnabled(label: string): Promise<void> {
-        await expect(this.field(label)).toBeEnabled();
-    }
-
-    async expectDisabled(label: string): Promise<void> {
-        await expect(this.field(label)).toBeDisabled();
-    }
-
-    async expectVisible(label: string): Promise<void> {
-        await expect(this.field(label)).toBeVisible();
-    }
-
-    async expectError(label: string, message: string): Promise<void> {
-        const field = this.field(label);
-        // Error message is typically in an aria-describedby element or adjacent sibling
-        const describedById = await field.getAttribute("aria-describedby");
-        if (describedById) {
-            await expect(this.scope().locator(`#${describedById}`)).toContainText(message);
-        } else {
-            // Fall back to adjacent error text (shadcn FormMessage pattern)
-            await expect(
-                this.scope().locator(`[data-slot="form-message"]:near(input)`).first()
-            ).toContainText(message);
-        }
-    }
-    //#endregion
+  async expectError(label: string, message: string): Promise<void> {
+    const errorSpan = this.root.locator(
+      `//label[normalize-space()="${label}"]/ancestor::div[contains(@class,"oxd-input-group")]` +
+      `//span[contains(@class,"oxd-input-group__message")]`
+    )
+    await expect(errorSpan).toHaveText(message)
+  }
 }
