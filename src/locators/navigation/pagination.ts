@@ -1,75 +1,33 @@
-/**
- * Pagination — shadcn Pagination component.
- * Built from <nav aria-label="pagination"> with numbered page links,
- * Previous / Next anchors, and optional ellipsis items.
- */
-
-import { expect, type Locator } from "@playwright/test";
-import { BaseComponent } from "../baseComponent";
+import type { Locator } from '@playwright/test'
+import { BaseComponent } from '../baseComponent'
 
 export class Pagination extends BaseComponent {
-    //#region Locators
-    private nav(): Locator {
-        return this.scope().getByRole("navigation", { name: /pagination/i });
-    }
+  getNextButton(): Locator {
+    return this.root.locator(
+      'button[aria-label="next"], .oxd-pagination-right, i.bi-chevron-right'
+    ).first()
+  }
 
-    private pageLink(page: number): Locator {
-        return this.nav().getByRole("link", { name: String(page), exact: true });
-    }
+  getPrevButton(): Locator {
+    return this.root.locator(
+      'button[aria-label="prev"], .oxd-pagination-left, i.bi-chevron-left'
+    ).first()
+  }
 
-    private prevLink(): Locator {
-        return this.nav().getByRole("link", { name: /previous/i });
-    }
+  getPageButton(num: number): Locator {
+    return this.root.locator(
+      `//li[normalize-space()="${num}"] | //button[normalize-space()="${num}"]`
+    )
+  }
 
-    private nextLink(): Locator {
-        return this.nav().getByRole("link", { name: /next/i });
-    }
+  async getCurrentPage(): Promise<number> {
+    const active = this.root.locator(
+      '.oxd-pagination-page-selected, [aria-current="page"]'
+    ).first()
+    return Number((await active.innerText()).trim())
+  }
 
-    private currentPage(): Locator {
-        // shadcn marks the active page with aria-current="page"
-        return this.nav().locator('[aria-current="page"]');
-    }
-    //#endregion
-
-    //#region Actions
-    async goToPage(page: number): Promise<void> {
-        const link = this.pageLink(page);
-        await this.waitForVisible(link);
-        await link.click();
-    }
-
-    async goToPrevious(): Promise<void> {
-        const link = this.prevLink();
-        await this.waitForVisible(link);
-        await link.click();
-    }
-
-    async goToNext(): Promise<void> {
-        const link = this.nextLink();
-        await this.waitForVisible(link);
-        await link.click();
-    }
-    //#endregion
-
-    //#region Assertions
-    async expectCurrentPage(page: number): Promise<void> {
-        await expect(this.currentPage()).toHaveText(String(page));
-    }
-
-    async expectPreviousDisabled(): Promise<void> {
-        await expect(this.prevLink()).toHaveAttribute("aria-disabled", "true");
-    }
-
-    async expectNextDisabled(): Promise<void> {
-        await expect(this.nextLink()).toHaveAttribute("aria-disabled", "true");
-    }
-
-    async expectPageVisible(page: number): Promise<void> {
-        await expect(this.pageLink(page)).toBeVisible();
-    }
-
-    async expectVisible(): Promise<void> {
-        await expect(this.nav()).toBeVisible();
-    }
-    //#endregion
+  async goToPage(num: number): Promise<void> {
+    await this.getPageButton(num).click()
+  }
 }
