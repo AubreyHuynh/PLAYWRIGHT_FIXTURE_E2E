@@ -1,7 +1,7 @@
 {
-  "name": "ecommerce-e2e",
+  "name": "orangehrm-e2e",
   "version": "1.0.0",
-  "description": "E2E test automation framework for practice-ecommerce.hoctest.com",
+  "description": "E2E test automation framework for opensource-demo.orangehrmlive.com",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",

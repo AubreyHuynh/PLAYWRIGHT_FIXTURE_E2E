@@ -1,20 +1,19 @@
 import type { Page } from '@playwright/test';
 import type { BasePage } from '../pages/BasePage';
-import { CartPage } from '../pages/CartPage';
-import { HomePage } from '../pages/HomePage';
+import { DashboardPage } from '../pages/DashboardPage';
+import { EmployeeDetailPage } from '../pages/EmployeeDetailPage';
+import { EmployeeListPage } from '../pages/EmployeeListPage';
 import { LoginPage } from '../pages/LoginPage';
-import { ProductDetailPage } from '../pages/ProductDetailPage';
 
 // ── Page registry ─────────────────────────────────────────────────────────────
-// Maps string keys to page-object constructors for generic lookup.
 
 type PageConstructor<T extends BasePage> = new (page: Page) => T;
 
 interface PageRegistry {
   loginPage: LoginPage;
-  homePage: HomePage;
-  productDetailPage: ProductDetailPage;
-  cartPage: CartPage;
+  dashboardPage: DashboardPage;
+  employeeListPage: EmployeeListPage;
+  employeeDetailPage: EmployeeDetailPage;
 }
 
 type PageKey = keyof PageRegistry;
@@ -33,16 +32,16 @@ export class PageManager {
     return this.resolve('loginPage', LoginPage);
   }
 
-  get homePage(): HomePage {
-    return this.resolve('homePage', HomePage);
+  get dashboardPage(): DashboardPage {
+    return this.resolve('dashboardPage', DashboardPage);
   }
 
-  get productDetailPage(): ProductDetailPage {
-    return this.resolve('productDetailPage', ProductDetailPage);
+  get employeeListPage(): EmployeeListPage {
+    return this.resolve('employeeListPage', EmployeeListPage);
   }
 
-  get cartPage(): CartPage {
-    return this.resolve('cartPage', CartPage);
+  get employeeDetailPage(): EmployeeDetailPage {
+    return this.resolve('employeeDetailPage', EmployeeDetailPage);
   }
 
   // ── Generic accessor ──────────────────────────────────────────────────────
@@ -50,16 +49,15 @@ export class PageManager {
   getPage<K extends PageKey>(key: K): PageRegistry[K] {
     const constructors: { [K in PageKey]: PageConstructor<PageRegistry[K]> } = {
       loginPage: LoginPage,
-      homePage: HomePage,
-      productDetailPage: ProductDetailPage,
-      cartPage: CartPage,
+      dashboardPage: DashboardPage,
+      employeeListPage: EmployeeListPage,
+      employeeDetailPage: EmployeeDetailPage,
     };
     return this.resolve(key, constructors[key]) as PageRegistry[K];
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-  /** Replace the underlying Page and clear the cache (call between tests). */
   reset(page: Page): void {
     this.page = page;
     this.cache.clear();

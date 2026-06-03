@@ -3,7 +3,7 @@ import * as path from 'path';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-function requireEnv(key: string): string {
+export function requireEnv(key: string): string {
   const value = process.env[key];
   if (!value) throw new Error(`Missing required environment variable: ${key}`);
   return value;
@@ -30,9 +30,6 @@ export const config = {
     expect: Number(optionalEnv('EXPECT_TIMEOUT', '10000')),
     global: Number(optionalEnv('GLOBAL_TIMEOUT', '60000')),
   },
-
-  get actionTimeout(): number { return this.timeouts.action; },
-  get navigationTimeout(): number { return this.timeouts.navigation; },
 
   headless: optionalEnv('HEADLESS', 'true') !== 'false',
   isCI: Boolean(process.env.CI),

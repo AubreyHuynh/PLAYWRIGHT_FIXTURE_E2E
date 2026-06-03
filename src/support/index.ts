@@ -1,5 +1,2 @@
-export { BrowserManager } from './browserManager';
-export { config } from './config';
-export { attachHooks, attachWorldHooks } from './hooks';
+export { config, requireEnv } from './config';
 export { PageManager } from './pageManager';
-export { World } from './world';

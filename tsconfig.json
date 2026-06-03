@@ -7,15 +7,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
-    "rootDir": "./",
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
-    "paths": {
-      "@pages/*": ["./src/pages/*"],
-      "@fixtures": ["./src/fixtures/fixtures"],
-      "@types-local/*": ["./src/types/*"],
-      "@test-data/*": ["./test-data/*"]
-    }
+    "rootDir": "./"
   },
   "include": ["src/**/*.ts", "tests/**/*.ts", "global-setup.ts", "playwright.config.ts", "test-data/**/*.ts"],
   "exclude": ["node_modules", "dist"]

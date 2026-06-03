@@ -8,6 +8,7 @@
  */
 
 import { authTest as test, expect } from '../../src/fixtures/fixtures';
+import { EmployeeListPage } from '../../src/pages/EmployeeListPage';
 
 // ── Suite: Dashboard ───────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ test.describe('Employee Management @regression', () => {
     await employeeListPage.searchByName('Admin');
     await employeeListPage.clickSearch();
     const count = await employeeListPage.getEmployeeCount();
-    expect(count, 'Search should return at least one result').toBeGreaterThanOrEqual(0);
+    expect(count, 'Search should return at least one result').toBeGreaterThan(0);
   });
 
   test('should reset search and restore full list @regression', async ({ employeeListPage }) => {
@@ -119,13 +120,9 @@ test.describe('Full E2E Flow: Dashboard → PIM @smoke', () => {
     await dashboardPage.navigateTo('PIM');
     await expect(page).toHaveURL(/\/web\/index\.php\/pim\/viewEmployeeList/);
 
-    // Step 3 – Verify employee table is visible
-    const empList = page.locator('.oxd-table');
-    await expect(empList).toBeVisible();
-
-    // Step 4 – Verify at least one row exists
-    const rows = page.locator('.oxd-table-row--clickable');
-    const count = await rows.count();
-    expect(count, 'Employee list should have at least one record').toBeGreaterThan(0);
+    // Step 3 & 4 – Verify employee table and data via POM
+    const empList = new EmployeeListPage(page);
+    await empList.assertTableVisible();
+    await empList.assertRecordsFound();
   });
 });
