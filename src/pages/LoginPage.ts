@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Page, Locator } from '@playwright/test'
 import { expect } from '@playwright/test'
 import { BasePage } from './BasePage'
 import type { User } from '../types'
@@ -57,5 +57,25 @@ export class LoginPage extends BasePage {
     await expect(
       this.page.locator('.oxd-input-group__message').first()
     ).toBeVisible({ timeout: 5_000 })
+  }
+
+  getUsernameInput(): Locator {
+    return this.input.getByName('username')
+  }
+
+  getPasswordInput(): Locator {
+    return this.input.getByName('password')
+  }
+
+  getRequiredMessage(index = 0): Locator {
+    return this.page.locator('.oxd-input-group__message').nth(index)
+  }
+
+  getAlertMessage(): Locator {
+    return this.alert.getMessage()
+  }
+
+  async submitEmpty(): Promise<void> {
+    await this.button.clickByType('submit')
   }
 }

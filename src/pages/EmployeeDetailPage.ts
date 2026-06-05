@@ -105,4 +105,31 @@ export class EmployeeDetailPage extends BasePage {
   async assertLastName(expected: string): Promise<void> {
     await expect(this.input.getByName('lastName')).toHaveValue(expected)
   }
+
+  getFirstNameInput(): Locator {
+    return this.input.getByName('firstName')
+  }
+
+  getLastNameInput(): Locator {
+    return this.input.getByName('lastName')
+  }
+
+  getFieldErrorMessage(fieldName: string): Locator {
+    return this.page.locator(
+      `xpath=//input[@name="${fieldName}"]/ancestor::div[contains(@class,"oxd-input-group")]` +
+      `//span[contains(@class,"oxd-input-group__message")]`
+    )
+  }
+
+  getSaveButton(): Locator {
+    return this.button.getByText('Save')
+  }
+
+  getCancelButton(): Locator {
+    return this.button.getByText('Cancel')
+  }
+
+  async clickSaveWithoutFilling(): Promise<void> {
+    await this.button.getByText('Save').click()
+  }
 }

@@ -88,4 +88,12 @@ export class DashboardPage extends BasePage {
     const count = await this.getWidgetCount()
     expect(count, 'Dashboard should have at least one widget').toBeGreaterThan(0)
   }
+
+  getMenuItem(label: string): Locator {
+    return this.page.locator(`.oxd-main-menu-item:has-text("${label}")`)
+  }
+
+  getDashboardHeading(): Locator {
+    return this.page.locator('.oxd-topbar-header-breadcrumb h6').first()
+  }
 }
